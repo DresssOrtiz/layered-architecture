@@ -48,16 +48,13 @@ Estas funcionalidades todavía están pendientes de implementación en el códig
 
 ## Arquitectura
 
-El backend está organizado inicialmente siguiendo una estructura de cuatro capas en `backend/src/`:
+El backend se organiza en tres capas en `backend/src/`, con las siguientes responsabilidades:
 
-- **presentation:** puntos de entrada del sistema, principalmente resolvers GraphQL.
-- **application:** casos de uso y coordinación de la lógica de aplicación.
-- **domain:** entidades y reglas de negocio de UniEvents.
-- **infrastructure:** persistencia, TypeORM, MariaDB e integraciones externas.
+- **presentation (Presentación):** resolvers GraphQL, inputs/DTOs y puntos de entrada al backend. Actualmente contiene el resolver de la consulta `hello`, el controlador de prueba existente y su prueba unitaria.
+- **business (Negocio):** servicios, reglas de negocio y lógica de aplicación. Actualmente contiene `AppService`, el servicio de prueba existente.
+- **persistence (Persistencia):** entidades TypeORM, repositorios y acceso a MariaDB. Por ahora solo contiene `.gitkeep` para conservar la carpeta.
 
-Actualmente la capa `presentation` contiene una consulta GraphQL de prueba llamada `hello`.
-
-Las capas `application`, `domain` e `infrastructure` están preparadas para recibir la implementación de UniEvents. La conexión con MariaDB mediante TypeORM ya se encuentra configurada, pero las entidades y casos de uso del dominio todavía están pendientes.
+La configuración global de NestJS y la conexión actual a MariaDB mediante TypeORM permanecen en `app.module.js`; el arranque está en `main.js`. Todavía no existen las entidades ni los casos de uso del dominio definitivo de UniEvents.
 
 ## Estructura del repositorio
 
@@ -67,3 +64,4 @@ layered-architecture/
 ├── backend/            # Aplicación NestJS organizada en capas
 ├── docker-compose.yml  # Frontend, backend y MariaDB
 └── README.md
+```

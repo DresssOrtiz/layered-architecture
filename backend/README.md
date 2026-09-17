@@ -23,7 +23,7 @@
 
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+[Nest](https://github.com/nestjs/nest) framework JavaScript backend, compiled with Babel and legacy decorators. Dependency injection uses explicit `@Dependencies` metadata; GraphQL declares its return types explicitly.
 
 ## Project setup
 
