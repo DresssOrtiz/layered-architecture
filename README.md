@@ -1,12 +1,39 @@
-# layered-architecture — Taller de Arquitectura de Software
+# UniEvents — Taller de Arquitectura de Software
 
-Proyecto académico cuyo objetivo es demostrar una solución basada en **Arquitectura en Capas**. Actualmente cuenta con una base técnica funcional que integra frontend, backend y base de datos mediante Docker Compose. El dominio del caso práctico, sus tres entidades de negocio y el flujo funcional definitivo se incorporarán posteriormente.
+Proyecto académico desarrollado para la materia **Arquitectura de Software**, cuyo objetivo es demostrar la aplicación del estilo **Arquitectura en Capas** utilizando un stack tecnológico compuesto por Svelte, NestJS, GraphQL y MariaDB.
+
+El caso práctico definido es **UniEvents**, una plataforma para la gestión de eventos universitarios e inscripción de estudiantes.
+
+Actualmente el proyecto cuenta con una base técnica funcional que integra frontend, backend y base de datos mediante Docker Compose. La infraestructura y comunicación entre componentes ya funcionan, mientras que la lógica de negocio específica de UniEvents se encuentra pendiente de implementación.
 
 ## Integrantes
 
 - Andrés Ortiz
 - Tomás Ramírez
 - Santiago Hernández
+
+## Caso práctico: UniEvents
+
+UniEvents permitirá gestionar eventos universitarios y la inscripción de estudiantes.
+
+El dominio definido contempla cinco entidades principales:
+
+- Estudiante
+- Categoría
+- Evento
+- Organizador
+- Inscripción
+
+Entre las reglas de negocio principales se encuentran:
+
+- Cada evento pertenece a una categoría.
+- Cada evento tiene un organizador.
+- Un estudiante puede inscribirse a un evento.
+- No se permiten inscripciones duplicadas del mismo estudiante al mismo evento.
+- No se permiten nuevas inscripciones cuando el evento alcanza su cupo máximo.
+- Una inscripción puede registrar si el estudiante asistió o no al evento.
+
+Estas funcionalidades todavía están pendientes de implementación en el código.
 
 ## Stack tecnológico
 
@@ -21,55 +48,22 @@ Proyecto académico cuyo objetivo es demostrar una solución basada en **Arquite
 
 ## Arquitectura
 
-El backend tiene una estructura inicial de cuatro capas en `backend/src/`, con las siguientes responsabilidades:
+El backend está organizado inicialmente siguiendo una estructura de cuatro capas en `backend/src/`:
 
-- **presentation:** exposición de GraphQL mediante resolvers. Actualmente incluye la consulta de prueba `hello`.
-- **application:** casos de uso y servicios de aplicación.
-- **domain:** entidades y reglas de negocio.
-- **infrastructure:** persistencia con TypeORM y MariaDB, e integraciones externas.
+- **presentation:** puntos de entrada del sistema, principalmente resolvers GraphQL.
+- **application:** casos de uso y coordinación de la lógica de aplicación.
+- **domain:** entidades y reglas de negocio de UniEvents.
+- **infrastructure:** persistencia, TypeORM, MariaDB e integraciones externas.
 
-Las carpetas `application`, `domain` e `infrastructure` están preparadas, pero aún no contienen implementaciones. La conexión actual a MariaDB mediante TypeORM está configurada en `AppModule`; todavía no existen las entidades ni los casos de uso del dominio definitivo.
+Actualmente la capa `presentation` contiene una consulta GraphQL de prueba llamada `hello`.
+
+Las capas `application`, `domain` e `infrastructure` están preparadas para recibir la implementación de UniEvents. La conexión con MariaDB mediante TypeORM ya se encuentra configurada, pero las entidades y casos de uso del dominio todavía están pendientes.
 
 ## Estructura del repositorio
 
 ```text
 layered-architecture/
 ├── frontend/           # Aplicación SvelteKit + TypeScript
-├── backend/            # Aplicación NestJS y estructura inicial en capas
-├── docker-compose.yml  # Servicios de frontend, backend y MariaDB
+├── backend/            # Aplicación NestJS organizada en capas
+├── docker-compose.yml  # Frontend, backend y MariaDB
 └── README.md
-```
-
-## Requisitos previos
-
-- Git.
-- Docker Desktop o Docker Engine con Docker Compose, instalado y en ejecución.
-
-## Ejecución con Docker Compose
-
-Desde la raíz del repositorio:
-
-```bash
-docker compose up -d --build
-```
-
-Una vez iniciados los servicios, los accesos son:
-
-| Servicio | Acceso |
-| --- | --- |
-| Frontend | [http://localhost:5173](http://localhost:5173) |
-| GraphQL | [http://localhost:3000/graphql](http://localhost:3000/graphql) |
-| MariaDB | `localhost:3306` (puerto SQL) |
-
-Para detener los servicios, ejecutar desde la raíz:
-
-```bash
-docker compose down
-```
-
-## Estado actual
-
-- La infraestructura base está operativa y el stack fue probado en conjunto con Docker Compose.
-- Existe comunicación frontend-backend mediante GraphQL con la consulta de prueba `hello`.
-- El backend tiene conexión a MariaDB mediante TypeORM.
-- El dominio del caso práctico, las tres entidades de negocio y el flujo funcional definitivo de extremo a extremo están pendientes de implementación.
