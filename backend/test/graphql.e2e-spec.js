@@ -5,6 +5,8 @@ import { AppModule } from '../src/app.module';
 import { DemoSeed } from '../src/persistence/demo.seed';
 
 describe('UniEvents GraphQL (e2e)', () => {
+  // Id con forma válida que nunca existe: separa el error de negocio del de validación.
+  const INEXISTENTE = 2147483647;
   let app;
   let manager;
   let categoria;
@@ -342,7 +344,7 @@ describe('UniEvents GraphQL (e2e)', () => {
   });
 
   it('propaga el error de estudiante inexistente', async () => {
-    const body = await inscribir(-1);
+    const body = await inscribir(INEXISTENTE);
     expect(body.errors[0].message).toBe('El estudiante no existe');
   });
 
@@ -354,14 +356,70 @@ describe('UniEvents GraphQL (e2e)', () => {
   });
 
   it('propaga el error de inscripción inexistente', async () => {
-    const body = await graphql(`
-      mutation {
-        marcarAsistencia(input: { inscripcionId: -1, asistio: false }) {
-          id
+    const body = await graphql(
+      `
+        mutation ($input: MarcarAsistenciaInput!) {
+          marcarAsistencia(input: $input) {
+            id
+          }
         }
-      }
-    `);
+      `,
+      { input: { inscripcionId: INEXISTENTE, asistio: false } },
+    );
     expect(body.errors[0].message).toBe('La inscripción no existe');
+  });
+
+  describe('validación de inputs en la capa de presentación', () => {
+    async function rechaza(query, variables, campo) {
+      const body = await graphql(query, variables);
+      expect(body.data?.[Object.keys(body.data ?? {})[0]] ?? null).toBeNull();
+      expect(JSON.stringify(body.errors)).toContain(campo);
+    }
+
+    it('rechaza una categoría sin nombre', () =>
+      rechaza(
+        `mutation ($input: CrearCategoriaInput!) {
+          crearCategoria(input: $input) { id }
+        }`,
+        { input: { nombre: '   ' } },
+        'nombre',
+      ));
+
+    it('rechaza un evento con cupo no positivo', () =>
+      rechaza(
+        `mutation ($input: CrearEventoInput!) {
+          crearEvento(input: $input) { id }
+        }`,
+        {
+          input: {
+            nombre: 'Evento inválido',
+            descripcion: 'Cupo fuera de rango',
+            fecha: '2027-02-01T10:00:00Z',
+            cupoMaximo: 0,
+            categoriaId: categoria.id,
+            organizadorId: organizador.id,
+          },
+        },
+        'cupoMaximo',
+      ));
+
+    it('rechaza una inscripción con identificadores no positivos', () =>
+      rechaza(
+        `mutation ($input: InscribirEstudianteInput!) {
+          inscribirEstudiante(input: $input) { id }
+        }`,
+        { input: { estudianteId: 0, eventoId: 0 } },
+        'eventoId',
+      ));
+
+    it('rechaza marcar asistencia sobre un identificador no positivo', () =>
+      rechaza(
+        `mutation ($input: MarcarAsistenciaInput!) {
+          marcarAsistencia(input: $input) { id }
+        }`,
+        { input: { inscripcionId: 0, asistio: true } },
+        'inscripcionId',
+      ));
   });
 
   afterEach(async () => {

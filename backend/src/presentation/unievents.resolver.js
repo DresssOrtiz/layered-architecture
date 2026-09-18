@@ -1,6 +1,7 @@
 import 'reflect-metadata';
-import { Dependencies } from '@nestjs/common';
+import { Dependencies, UseGuards } from '@nestjs/common';
 import { Args, Int, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { GqlThrottlerGuard } from './gql-throttler.guard';
 import { CategoriaService } from '../business/categoria.service';
 import { EventoService } from '../business/evento.service';
 import { InscripcionService } from '../business/inscripcion.service';
@@ -85,6 +86,9 @@ export class UniEventsResolver {
     return this.eventoService.crear(input);
   }
 
+  // Rate limiting: protege el cupo de intentos automatizados de inscripción.
+  // Los límites vienen de ThrottlerModule (RATE_LIMIT_INSCRIPCION / RATE_LIMIT_TTL).
+  @UseGuards(GqlThrottlerGuard)
   @Mutation(() => InscripcionType)
   inscribirEstudiante(input) {
     return this.inscripcionService.inscribir(
@@ -113,9 +117,11 @@ for (const [method, name, type] of [
   ['inscribirEstudiante', 'input', InscribirEstudianteInput],
   ['marcarAsistencia', 'input', MarcarAsistenciaInput],
 ]) {
+  // El metatype real habilita ValidationPipe sobre los InputType; los escalares
+  // (Int) no son clases, así que se quedan en Object para que el pipe los ignore.
   Reflect.defineMetadata(
     'design:paramtypes',
-    [Object],
+    [type === Int ? Object : type],
     UniEventsResolver.prototype,
     method,
   );

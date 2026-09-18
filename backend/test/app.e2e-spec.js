@@ -3,7 +3,7 @@ import { DataSource } from 'typeorm';
 import request from 'supertest';
 import { AppModule } from './../src/app.module';
 
-describe('AppController (e2e)', () => {
+describe('Health y persistencia (e2e)', () => {
   let app;
 
   beforeAll(async () => {
@@ -15,19 +15,15 @@ describe('AppController (e2e)', () => {
     await app.init();
   });
 
-  it('/ (GET)', () => {
-    return request(app.getHttpServer())
-      .get('/')
-      .expect(200)
-      .expect('Hello World!');
-  });
-
-  it('/graphql returns the existing hello query', () => {
-    return request(app.getHttpServer())
-      .post('/graphql')
-      .send({ query: 'query { hello }' })
-      .expect(200)
-      .expect({ data: { hello: 'GraphQL funcionando' } });
+  it('/health (GET) reporta el backend y MariaDB disponibles', async () => {
+    const { body } = await request(app.getHttpServer())
+      .get('/health')
+      .expect(200);
+    expect(body).toEqual({
+      status: 'ok',
+      database: 'up',
+      uptime: expect.any(Number),
+    });
   });
 
   it('connects TypeORM to MariaDB and executes SQL', async () => {

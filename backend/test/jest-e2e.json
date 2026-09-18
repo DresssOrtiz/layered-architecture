@@ -10,6 +10,7 @@
     "^.+\\.js$": "babel-jest"
   },
   "setupFiles": [
-    "reflect-metadata"
+    "reflect-metadata",
+    "<rootDir>/test/setup-e2e.js"
   ]
 }
