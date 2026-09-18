@@ -6,9 +6,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './presentation/app.controller';
 import { AppService } from './business/app.service';
 import { AppResolver } from './presentation/app.resolver';
+import { BusinessModule } from './business/business.module';
+import { UniEventsResolver } from './presentation/unievents.resolver';
 
 @Module({
   imports: [
+    BusinessModule,
     GraphQLModule.forRoot({
       driver: ApolloDriver,
       autoSchemaFile: true,
@@ -27,6 +30,6 @@ import { AppResolver } from './presentation/app.resolver';
   }),
   ],
   controllers: [AppController],
-  providers: [AppService, AppResolver],
+  providers: [AppService, AppResolver, UniEventsResolver],
 })
 export class AppModule {}
